@@ -3,6 +3,8 @@ const path = require('path');
 const glob = require('glob');
 const chalk = require('chalk');
 
+const BOUNDARY = 30;
+
 function getGitIgnoreLines(dir) {
   let ignoreLines;
 
@@ -13,16 +15,14 @@ function getGitIgnoreLines(dir) {
     return [];
   }
 
-  return ignoreLines
+  const patterns = [];
+
+  ignoreLines
     .split('\n')
     .map((line) => line.trim())
-    .filter((line) => Boolean(line))
-    .map((line) => {
+    .filter((line) => Boolean(line) && !line.startsWith('#'))
+    .forEach((line) => {
       let updated = line;
-
-      if (!updated.startsWith('/')) {
-        return `**/${updated}`;
-      }
 
       if (updated.endsWith('/')) {
         updated += '**';
@@ -30,11 +30,17 @@ function getGitIgnoreLines(dir) {
         updated += '/**';
       }
 
-      return updated;
+      if (updated.startsWith('/')) {
+        patterns.push(updated.substr(1, updated.length - 1));
+      } else {
+        patterns.push(updated, `**/${updated}`);
+      }
     });
+
+  return patterns;
 }
 
-function run({pattern, dir, colorize, showFileNames, showContent, noGitIgnore, ignore, ignoreExts, errorCodeOnFound}) {
+function run({pattern, dir, colorize, showFileNames, showContent, gitIgnore, ignore, ignoreExts, errorCodeOnFound}) {
   let errorLines = 0;
 
   glob(
@@ -42,14 +48,14 @@ function run({pattern, dir, colorize, showFileNames, showContent, noGitIgnore, i
     {
       cwd: dir,
       ignore: [
-        '**/.git/**',
+        'node_modules/**',
         '**/node_modules/**',
-        'cache',
+        '*cache*/**',
+        '**/*cache*/**',
         ...ignoreExts.map((ext) => `**/*.${ext}`),
-        ...(noGitIgnore ? [] : getGitIgnoreLines(dir)),
+        ...(gitIgnore ? getGitIgnoreLines(dir) : []),
         ...(ignore || []),
       ],
-      dot: true,
       nodir: true,
     },
     (err, files) => {
@@ -103,11 +109,16 @@ function run({pattern, dir, colorize, showFileNames, showContent, noGitIgnore, i
               }
 
               if (showContent) {
-                const str = `${line.substr(0, lineMatch.index)}${value}${line.substr(
-                  lineMatch.index + lineMatch[0].length,
-                )}`;
+                const start = Math.max(0, lineMatch.index - BOUNDARY);
+                const len = Math.min(BOUNDARY, lineMatch.index);
+                const start2 = lineMatch.index + lineMatch[0].length;
 
-                output += ` ${str}`;
+                const str = `${lineMatch.index > BOUNDARY ? '... ' : ''}${line.substr(start, len)}${value}${line.substr(
+                  start2,
+                  BOUNDARY,
+                )}${start2 + BOUNDARY < line.length ? ' ...' : ''}`;
+
+                output += `  ${str}`;
               }
 
               if (output.trim()) {

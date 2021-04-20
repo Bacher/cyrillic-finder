@@ -52,7 +52,7 @@ const pattern = argv._[0];
 const colorize = !('color' in argv) || argv.color === true;
 const showFileNames = !('filename' in argv) || argv.filename === true;
 const showContent = !('content' in argv) || argv.content === true;
-const noGitIgnore = !('gitignore' in argv) || argv.gitignore === true;
+const gitIgnore = !('gitignore' in argv) || argv.gitignore === true;
 const errorCodeOnFound = Boolean(argv.error);
 
 function toArray(value) {
@@ -73,7 +73,7 @@ require('./src/main')({
   colorize,
   showFileNames,
   showContent,
-  noGitIgnore,
+  gitIgnore,
   ignore: toArray(argv.ignore),
   ignoreExts,
   errorCodeOnFound,

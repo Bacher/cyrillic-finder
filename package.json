@@ -1,6 +1,6 @@
 {
   "name": "cyrillic-finder",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "",
   "main": "src/main.js",
   "bin": "run.js",
