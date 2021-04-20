@@ -4,6 +4,7 @@ const yargs = require('yargs/yargs');
 const {hideBin} = require('yargs/helpers');
 
 const {argv} = yargs(hideBin(process.argv))
+  .scriptName(require('./package.json').name)
   .option('path', {
     alias: 'p',
     description: 'Run in specific directory',
@@ -20,7 +21,7 @@ const {argv} = yargs(hideBin(process.argv))
     type: 'boolean',
   })
   .option('error', {
-    description: 'Exit with error code when chars had found',
+    description: 'Exit with error code when characters had found',
     type: 'boolean',
   })
   .option('no-color', {
@@ -36,7 +37,7 @@ const {argv} = yargs(hideBin(process.argv))
     type: 'boolean',
   })
   .option('cyrillic', {
-    description: 'Find only cyrillic chars',
+    description: 'Find only cyrillic characters',
     type: 'boolean',
   })
   .alias('help', 'h')
@@ -44,7 +45,7 @@ const {argv} = yargs(hideBin(process.argv))
   .example([
     ["$0 '**/*.ts'", 'Run for .ts files'],
     ['$0 -p src/', 'Use for files in src directory'],
-    ["$0 --ignore '.cache/**' -p src/", 'Use ignoring pattern'],
+    ["$0 --ignore '.cache/**'", 'Use ignoring pattern'],
     ['$0', 'Run in current working directory'],
   ]);
 

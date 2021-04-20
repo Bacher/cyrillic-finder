@@ -1,6 +1,6 @@
 {
-  "name": "cyrillic-finder",
-  "version": "0.1.6",
+  "name": "find-bad-symbols",
+  "version": "0.1.7",
   "description": "",
   "main": "src/main.js",
   "bin": "run.js",
