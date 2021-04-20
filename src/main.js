@@ -1,61 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const yargs = require('yargs/yargs');
-const {hideBin} = require('yargs/helpers');
 const glob = require('glob');
 const chalk = require('chalk');
 
-const {argv} = yargs(hideBin(process.argv))
-  .option('path', {
-    alias: 'p',
-    description: 'Run in specific directory',
-    default: process.cwd(),
-    defaultDescription: 'current directory',
-  })
-  .option('ignore', {
-    alias: 'i',
-    description: 'Ignore pattern in glob syntax (ex: cache/**)',
-    exaple: '.cache/**/*',
-    type: 'string',
-  })
-  .option('error', {
-    description: 'Exit with error code when chars had found',
-    type: 'boolean',
-  })
-  .option('no-color', {
-    description: 'Do not colorize output',
-    type: 'boolean',
-  })
-  .option('no-filename', {
-    description: 'Do not output the filenames',
-    type: 'boolean',
-  })
-  .option('no-content', {
-    description: 'Do not output the content of line',
-    type: 'boolean',
-  })
-  .alias('help', 'h')
-  .alias('version', 'v')
-  .example([
-    ["$0 '**.ts'", 'Run for .ts files'],
-    ['$0 -p src/', 'Use for files in src directory'],
-    ["$0 --ignore '.cache/**' -p src/", 'Use ignoring pattern'],
-    ['$0', 'Run in current working directory'],
-  ]);
-
-const ignoreExts = ['jpg', 'jpeg', 'gif', 'png', 'zip', 'gz'];
-
-const DIR = argv.path;
-
-const colorize = !('color' in argv) || argv.color === true;
-const showFileNames = !('filename' in argv) || argv.filename === true;
-const showContent = !('content' in argv) || argv.content === true;
-
-function getGitIgnoreLines() {
+function getGitIgnoreLines(dir) {
   let ignoreLines;
 
   try {
-    ignoreLines = fs.readFileSync(path.join(DIR, '.gitignore'), 'utf-8');
+    ignoreLines = fs.readFileSync(path.join(dir, '.gitignore'), 'utf-8');
   } catch (err) {
     console.log(err);
     return [];
@@ -82,32 +34,20 @@ function getGitIgnoreLines() {
     });
 }
 
-function toArray(value) {
-  if (value == null) {
-    return [];
-  }
-
-  if (Array.isArray(value)) {
-    return value;
-  }
-
-  return [value];
-}
-
-function run() {
+function run({pattern, dir, colorize, showFileNames, showContent, noGitIgnore, ignore, ignoreExts, errorCodeOnFound}) {
   let errorLines = 0;
 
   glob(
-    argv._[0] || '**',
+    pattern || '**',
     {
-      cwd: DIR,
+      cwd: dir,
       ignore: [
         '**/.git/**',
         '**/node_modules/**',
         'cache',
         ...ignoreExts.map((ext) => `**/*.${ext}`),
-        ...getGitIgnoreLines(),
-        ...toArray(argv.ignore),
+        ...(noGitIgnore ? [] : getGitIgnoreLines(dir)),
+        ...(ignore || []),
       ],
       dot: true,
       nodir: true,
@@ -126,7 +66,7 @@ function run() {
       }
 
       outer: for (const filePath of files) {
-        const buffer = fs.readFileSync(path.join(DIR, filePath));
+        const buffer = fs.readFileSync(path.join(dir, filePath));
 
         for (let i = 0; i < buffer.length; i++) {
           if (buffer[i] === 0) {
@@ -186,7 +126,7 @@ function run() {
         }
       }
 
-      if (errorLines > 0 && argv.error) {
+      if (errorLines > 0 && errorCodeOnFound) {
         process.exit(1);
       }
     },
