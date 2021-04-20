@@ -55,7 +55,7 @@ function getGitIgnoreLines() {
   let ignoreLines;
 
   try {
-    ignoreLines = fs.readFileSync('.gitignore', 'utf-8');
+    ignoreLines = fs.readFileSync(path.join(DIR, '.gitignore'), 'utf-8');
   } catch (err) {
     console.log(err);
     return [];

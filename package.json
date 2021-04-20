@@ -1,15 +1,22 @@
 {
   "name": "cyrillic-finder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "src/main.js",
   "bin": "run.js",
   "scripts": {
-    "start": "node src/main.js",
+    "start": "./run.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "js",
+    "runnable"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bacher/cyrillic-finder"
+  },
+  "author": "Ilya <Bacher> Lebedev",
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.1.0",
