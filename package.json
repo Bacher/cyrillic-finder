@@ -1,6 +1,6 @@
 {
   "name": "find-bad-symbols",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "",
   "main": "src/main.js",
   "bin": "run.js",
@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bacher/cyrillic-finder"
+    "url": "git+https://github.com/Bacher/find-bad-symbols"
   },
   "author": "Ilya <Bacher> Lebedev",
   "license": "ISC",
