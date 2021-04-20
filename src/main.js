@@ -6,6 +6,17 @@ const chalk = require('chalk');
 const BOUNDARY = 30;
 const ERROR_LINES_LIMIT = 100;
 
+const regGroups = {
+  common: {
+    find: /[^\w\s\t.,:;!='"`^~&*$€@?%#|<>«»„“(){}[\]\\/+-]+/,
+    group: /[^\w\s\t.,:;!='"`^~&*$€@?%#|<>«»„“(){}[\]\\/+-]+(?:[\s,.:?+-]*[^\w\s\t.,:;!='"`^~&*$€@?%#|<>«»„“(){}[\]\\/+-]+)*/,
+  },
+  cyrillic: {
+    find: /[а-яёй]+/i,
+    group: /[а-яёй]+(?:[\s,.:?+-]*[а-яёй]+)*/i,
+  },
+};
+
 function getGitIgnoreLines(dir) {
   let ignoreLines;
 
@@ -41,8 +52,21 @@ function getGitIgnoreLines(dir) {
   return patterns;
 }
 
-function run({pattern, dir, colorize, showFileNames, showContent, gitIgnore, ignore, ignoreExts, errorCodeOnFound}) {
+function run({
+  pattern,
+  dir,
+  colorize,
+  showFileNames,
+  showContent,
+  gitIgnore,
+  ignore,
+  ignoreExts,
+  errorCodeOnFound,
+  onlyCyrillic,
+}) {
   let errorLines = 0;
+
+  const regGroup = onlyCyrillic ? regGroups.cyrillic : regGroups.common;
 
   glob(
     pattern || '**',
@@ -83,7 +107,7 @@ function run({pattern, dir, colorize, showFileNames, showContent, gitIgnore, ign
 
         const content = buffer.toString();
 
-        const match = content.match(/[а-яёй]+/i);
+        const match = content.match(regGroup.find);
 
         if (match) {
           console.log(
@@ -94,7 +118,7 @@ function run({pattern, dir, colorize, showFileNames, showContent, gitIgnore, ign
 
           for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            const lineMatch = line.match(/[а-яёй]+(?:[\s,.:?+-]*[а-яёй]+)*/i);
+            const lineMatch = line.match(regGroup.group);
 
             if (lineMatch) {
               errorLines++;

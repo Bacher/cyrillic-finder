@@ -13,7 +13,6 @@ const {argv} = yargs(hideBin(process.argv))
   .option('ignore', {
     alias: 'i',
     description: 'Ignore pattern in glob syntax (ex: cache/**)',
-    exaple: '.cache/**/*',
     type: 'string',
   })
   .option('no-gitignore', {
@@ -36,10 +35,14 @@ const {argv} = yargs(hideBin(process.argv))
     description: 'Do not output the content of line',
     type: 'boolean',
   })
+  .option('cyrillic', {
+    description: 'Find only cyrillic chars',
+    type: 'boolean',
+  })
   .alias('help', 'h')
   .alias('version', 'v')
   .example([
-    ["$0 '**.ts'", 'Run for .ts files'],
+    ["$0 '**/*.ts'", 'Run for .ts files'],
     ['$0 -p src/', 'Use for files in src directory'],
     ["$0 --ignore '.cache/**' -p src/", 'Use ignoring pattern'],
     ['$0', 'Run in current working directory'],
@@ -54,6 +57,7 @@ const showFileNames = !('filename' in argv) || argv.filename === true;
 const showContent = !('content' in argv) || argv.content === true;
 const gitIgnore = !('gitignore' in argv) || argv.gitignore === true;
 const errorCodeOnFound = Boolean(argv.error);
+const onlyCyrillic = Boolean(argv.cyrillic);
 
 function toArray(value) {
   if (value == null) {
@@ -77,4 +81,5 @@ require('./src/main')({
   ignore: toArray(argv.ignore),
   ignoreExts,
   errorCodeOnFound,
+  onlyCyrillic,
 });
