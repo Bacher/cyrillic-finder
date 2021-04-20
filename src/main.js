@@ -4,6 +4,7 @@ const glob = require('glob');
 const chalk = require('chalk');
 
 const BOUNDARY = 30;
+const ERROR_LINES_LIMIT = 100;
 
 function getGitIgnoreLines(dir) {
   let ignoreLines;
@@ -65,7 +66,7 @@ function run({pattern, dir, colorize, showFileNames, showContent, gitIgnore, ign
         return;
       }
 
-      if (files.length > 5000) {
+      if (files.length > 20000) {
         console.error(`Too many files found: ${files.length}`);
         process.exit(1);
         return;
@@ -85,7 +86,9 @@ function run({pattern, dir, colorize, showFileNames, showContent, gitIgnore, ign
         const match = content.match(/[а-яёй]+/i);
 
         if (match) {
-          console.log(`File "${filePath}" contains cyrillic chars${!showFileNames && !showContent ? '' : ':'}`);
+          console.log(
+            `File ${chalk.bold(`"${filePath}"`)} contains cyrillic chars${!showFileNames && !showContent ? '' : ':'}`,
+          );
 
           const lines = content.split('\n');
 
@@ -125,16 +128,20 @@ function run({pattern, dir, colorize, showFileNames, showContent, gitIgnore, ign
                 console.log(output);
               }
 
-              if (errorLines > 100) {
-                break;
+              if (errorLines > ERROR_LINES_LIMIT) {
+                break outer;
               }
             }
           }
         }
 
-        if (errorLines > 100) {
+        if (errorLines > ERROR_LINES_LIMIT) {
           break;
         }
+      }
+
+      if (errorLines > ERROR_LINES_LIMIT) {
+        console.log('... printed only first 100 lines (other skipped) ...');
       }
 
       if (errorLines > 0 && errorCodeOnFound) {
