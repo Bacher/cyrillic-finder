@@ -6,14 +6,26 @@ const chalk = require('chalk');
 const BOUNDARY = 30;
 const ERROR_LINES_LIMIT = 100;
 
+const separationRegExp = '[\\s,.:?+-]';
+
+const punctuationSymbols = '.…,:;!=\'"’`^~&*$€@?%#§\\-–—+|<>«»„“”(){}[\\]\\\\/';
+const tableSymbols = '│┌─┐└┘┃┏━┓┗┛';
+const otherSymbols = '↑↓←→©';
+
+const allowedSymbols = [punctuationSymbols, tableSymbols, otherSymbols].join('');
+
+const commonRegExp = `[^\\w\\s\\t${allowedSymbols}]`;
+
+const cyrillicRegExp = '[а-яёй]';
+
 const regGroups = {
   common: {
-    find: /[^\w\s\t.,:;!='"`^~&*$€@?%#|<>«»„“(){}[\]\\/+-]+/,
-    group: /[^\w\s\t.,:;!='"`^~&*$€@?%#|<>«»„“(){}[\]\\/+-]+(?:[\s,.:?+-]*[^\w\s\t.,:;!='"`^~&*$€@?%#|<>«»„“(){}[\]\\/+-]+)*/,
+    find: new RegExp(`${commonRegExp}+`),
+    group: new RegExp(`${commonRegExp}+(?:${separationRegExp}*${commonRegExp}+)*`),
   },
   cyrillic: {
-    find: /[а-яёй]+/i,
-    group: /[а-яёй]+(?:[\s,.:?+-]*[а-яёй]+)*/i,
+    find: new RegExp(`${cyrillicRegExp}+`, 'i'),
+    group: new RegExp(`${cyrillicRegExp}+(?:${separationRegExp}*${cyrillicRegExp}+)*`, 'i'),
   },
 };
 
