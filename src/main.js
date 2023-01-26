@@ -123,7 +123,7 @@ function run({
 
         if (match) {
           console.log(
-            `File ${chalk.bold(`"${filePath}"`)} contains cyrillic chars${!showFileNames && !showContent ? '' : ':'}`,
+            `File ${chalk.bold(`"${filePath}"`)} contains bad chars${!showFileNames && !showContent ? '' : ':'}`,
           );
 
           const lines = content.split('\n');
